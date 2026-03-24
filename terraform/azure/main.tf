@@ -48,5 +48,6 @@ resource "azurerm_network_interface" "eni" {
 }
 
 # (add NSG later for the ENI, with the current config all ports are open)
+# no VM resources have been created yet so the effective-all-ports-open issue doesn't apply to anything
 
 # Compute
