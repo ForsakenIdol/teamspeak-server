@@ -51,7 +51,85 @@ resource "azurerm_network_interface" "eni" {
   }
 }
 
-# (add NSG later for the ENI, with the current config all ports are open)
-# no VM resources have been created yet so the effective-all-ports-open issue doesn't apply to anything
+# NSG
+
+# HTTP and SSH for now, we'll do the actual Teamspeak ports later
+resource "azurerm_network_security_group" "nsg" {
+  name                = "teamspeak-nsg"
+  location            = azurerm_resource_group.teamspeak.location
+  resource_group_name = azurerm_resource_group.teamspeak.name
+
+  security_rule {
+    name                       = "SSH"
+    priority                   = 101
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "HTTP"
+    priority                   = 102
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  # ... (future Teamspeak rules here later)
+
+}
+
+resource "azurerm_network_interface_security_group_association" "associate_nsg_to_eni" {
+  network_interface_id      = azurerm_network_interface.eni.id
+  network_security_group_id = azurerm_network_security_group.nsg.id
+}
 
 # Compute
+
+resource "azurerm_linux_virtual_machine" "teamspeak_vm" {
+  name                            = "teamspeak-server"
+  location                        = azurerm_resource_group.teamspeak.location
+  resource_group_name             = azurerm_resource_group.teamspeak.name
+  network_interface_ids           = [azurerm_network_interface.eni.id]
+  size                            = "B2ats_v2"
+  disable_password_authentication = true
+
+  /*
+    az vm image list \
+        --location australiaeast \
+        --publisher Canonical \
+        --offer ubuntu-24_04-lts \
+        --sku server \
+        --architecture x64 \
+        --query "[?imageDeprecationStatus.imageState != 'ScheduledForDeprecation']" \
+        --all \
+        --output table
+    */
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "ubuntu-24_04-lts"
+    sku       = "server"
+    version   = "latest"
+  }
+
+  os_disk {
+    caching = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  admin_username = "ubuntu"
+  admin_ssh_key {
+    username   = "ubuntu"
+    public_key = data.azurerm_ssh_public_key.teamspeak_ssh.public_key
+  }
+
+  user_data = filebase64("${path.module}/utils/user-data.yaml")
+}
