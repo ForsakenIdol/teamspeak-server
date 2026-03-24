@@ -99,7 +99,7 @@ resource "azurerm_linux_virtual_machine" "teamspeak_vm" {
   location                        = azurerm_resource_group.teamspeak.location
   resource_group_name             = azurerm_resource_group.teamspeak.name
   network_interface_ids           = [azurerm_network_interface.eni.id]
-  size                            = "B2ats_v2"
+  size                            = "Standard_B2ats_v2"
   disable_password_authentication = true
 
   /*
