@@ -30,6 +30,10 @@ resource "azurerm_public_ip" "eip" {
   allocation_method   = "Static"
   ip_version          = "IPv4"
   sku_tier            = "Regional"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Network interface for the VM
