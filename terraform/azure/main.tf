@@ -131,5 +131,5 @@ resource "azurerm_linux_virtual_machine" "teamspeak_vm" {
     public_key = data.azurerm_ssh_public_key.teamspeak_ssh.public_key
   }
 
-  # user_data = 
+  user_data = filebase64("${path.module}/utils/user-data.yaml")
 }
