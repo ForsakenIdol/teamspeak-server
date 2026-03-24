@@ -42,6 +42,7 @@ resource "azurerm_network_interface" "eni" {
         name = "primary-ip_config"
         public_ip_address_id = azurerm_public_ip.eip.id
         subnet_id = azurerm_subnet.teamspeak_public_subnet_1.id
+        private_ip_address_allocation = "Dynamic"
         primary = true
     }
 }

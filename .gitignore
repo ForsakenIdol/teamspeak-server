@@ -1,0 +1,4 @@
+# We're only planning and applying Terraform using GHA workflows
+# Ignore the stuff that's generated locally
+.terraform/
+.terraform.lock.hcl
