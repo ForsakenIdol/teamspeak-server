@@ -45,3 +45,7 @@ resource "azurerm_network_interface" "eni" {
         primary = true
     }
 }
+
+# (add NSG later for the ENI, with the current config all ports are open)
+
+# Compute
