@@ -121,7 +121,7 @@ resource "azurerm_linux_virtual_machine" "teamspeak_vm" {
   }
 
   os_disk {
-    caching = "ReadWrite"
+    caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
   }
 
@@ -132,4 +132,22 @@ resource "azurerm_linux_virtual_machine" "teamspeak_vm" {
   }
 
   user_data = filebase64("${path.module}/utils/user-data.yaml")
+}
+
+# Storage
+
+resource "azurerm_managed_disk" "teamspeak_disk" {
+  name                 = "teamspeak-data-disk"
+  location             = azurerm_resource_group.teamspeak.location
+  resource_group_name  = azurerm_resource_group.teamspeak.name
+  storage_account_type = "Standard_LRS"
+  create_option        = "Empty"
+  disk_size_gb         = 10
+}
+
+resource "azurerm_virtual_machine_data_disk_attachment" "attach_disk_to_vm" {
+  virtual_machine_id = azurerm_linux_virtual_machine.teamspeak_vm.id
+  managed_disk_id    = azurerm_managed_disk.teamspeak_disk.id
+  lun                = 10
+  caching            = "ReadWrite"
 }
