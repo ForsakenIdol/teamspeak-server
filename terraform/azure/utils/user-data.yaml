@@ -7,6 +7,18 @@ packages:
   - docker.io
   - docker-compose-v2
 
+# Disk setup is documentated here: https://docs.cloud-init.io/en/latest/reference/examples.html#disk-setup
+# There is a section that specifically covers Azure's disk naming convention.
+fs_setup:
+  - device: /dev/disk/azure/scsi1/lun10
+    filesystem: ext4
+    partition: none
+
+# Writing to /etc/fstab so mounts persist on boot
+# https://docs.cloud-init.io/en/latest/reference/examples.html#adjust-mount-points-mounted
+mounts:
+  - [ "/dev/disk/azure/scsi1/lun10", "/data/teamspeak", "ext4", "defaults,nofail", "0", "2" ]
+
 # Enable and start the Docker service
 runcmd:
   - systemctl enable docker
