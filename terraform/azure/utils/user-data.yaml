@@ -5,6 +5,7 @@ package_upgrade: true
 # Install Docker
 packages:
   - docker.io
+  - docker-compose-plugin
 
 # Enable and start the Docker service
 runcmd:
