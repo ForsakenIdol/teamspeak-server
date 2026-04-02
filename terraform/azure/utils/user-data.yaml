@@ -41,7 +41,7 @@ bootcmd:
 runcmd:
   # Race condition between fs_setup and fstab mount, fstab mount is always happening first, so we must mount manually on very first boot
   # This problem doesn't happen on subsequent boots, only on the very first one
-  - mount /dev/disk/azure/scsi1/lun10 /data/teamspeak
+  - mount -v /dev/disk/azure/scsi1/lun10 /data/teamspeak
   # Start Docker
   - systemctl enable docker
   - systemctl start docker
