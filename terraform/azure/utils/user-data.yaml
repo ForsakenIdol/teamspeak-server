@@ -2,6 +2,12 @@
 package_update: true
 package_upgrade: true
 
+bootcmd:
+  # Without this, we get a race condition between fs_setup and the disk actually being connected to the machine
+  # Terraform attaches the disk to the VM after provisioning the VM, so we need to wait for the disk to actually be attached
+  # bootcmd runs super early in the boot process, therefore, we do the wait loop here
+  - until [ -e /dev/disk/azure/scsi1/lun10 ]; do sleep 1; done
+
 # Install Docker
 packages:
   - docker.io
@@ -35,13 +41,7 @@ write_files:
             - /data/teamspeak:/var/www/html:ro
     # The "ro" means that the volume bind mount is read-only from the perspective of the container.
 
-bootcmd:
-  - until [ -e /dev/disk/azure/scsi1/lun10 ]; do sleep 1; done
-
 runcmd:
-  # Race condition between fs_setup and fstab mount, fstab mount is always happening first, so we must mount manually on very first boot
-  # This problem doesn't happen on subsequent boots, only on the very first one
-  - mount -v /dev/disk/azure/scsi1/lun10 /data/teamspeak
   # Start Docker
   - systemctl enable docker
   - systemctl start docker
