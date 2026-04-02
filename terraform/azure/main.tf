@@ -51,13 +51,14 @@ resource "azurerm_network_interface" "eni" {
   }
 }
 
-# NSG
+# Network Security Group
 
-# HTTP and SSH for now, we'll do the actual Teamspeak ports later
 resource "azurerm_network_security_group" "nsg" {
   name                = "teamspeak-nsg"
   location            = azurerm_resource_group.teamspeak.location
   resource_group_name = azurerm_resource_group.teamspeak.name
+
+  # General Rules
 
   security_rule {
     name                       = "SSH"
@@ -83,7 +84,43 @@ resource "azurerm_network_security_group" "nsg" {
     destination_address_prefix = "*"
   }
 
-  # ... (future Teamspeak rules here later)
+  # Teamspeak-Specific Rules
+
+  security_rule {
+    name                       = "teamspeak-voice-udp"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Udp"
+    source_port_range          = "*"
+    destination_port_range     = "9987"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "teamspeak-file-transfer"
+    priority                   = 104
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "30033"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "teamspeak-web-query"
+    priority                   = 105
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "10080"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 
 }
 
