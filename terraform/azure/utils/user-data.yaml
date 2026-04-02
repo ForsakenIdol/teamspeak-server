@@ -42,7 +42,7 @@ runcmd:
   # Wait for Docker daemon to become ready before running containers (timeout after ~1 minute)
   - bash -c 'for i in {1..60}; do docker info >/dev/null 2>&1 && exit 0; sleep 1; done; echo "Docker failed to become ready within 60 seconds" >&2; exit 1'
   # Create a file for Apache2 to serve, checking whether the mounted directory already exists
-  - test -d "/data/teamspeak" && echo "<h1>Hey you made it boi</h1>" > /data/teamspeak/index.html || echo "<h1>Directory did not exist prior to this</h1>" > /data/teamspeak/index.html
+  - bash -c 'if ! mountpoint -q /data/teamspeak; then echo "ERROR: /data/teamspeak is not a mountpoint; aborting." >&2; exit 1; fi; echo "<h1>Hey you made it boi</h1>" > /data/teamspeak/index.html;'
   # Start a basic Apache2 web server to serve from the /data/teamspeak directory
   - docker compose -f /srv/docker/docker-compose.yaml up -d
 
