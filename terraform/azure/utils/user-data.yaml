@@ -19,14 +19,32 @@ fs_setup:
 mounts:
   - [ "/dev/disk/azure/scsi1/lun10", "/data/teamspeak", "ext4", "defaults,nofail", "0", "2" ]
 
+write_files:
+  - path: /srv/docker/docker-compose.yaml
+    owner: root:root
+    permissions: "0644"
+    content: |
+      services:
+        web:
+          image: ubuntu/apache2
+          container_name: apache2-web-server
+          restart: unless-stopped
+          ports:
+            - "80:80"
+          volumes:
+            - /data/teamspeak:/var/www/html:ro
+    # The "ro" means that the volume bind mount is read-only from the perspective of the container.
+
 # Enable and start the Docker service
 runcmd:
   - systemctl enable docker
   - systemctl start docker
   # Wait for Docker daemon to become ready before running containers (timeout after ~1 minute)
   - bash -c 'for i in {1..60}; do docker info >/dev/null 2>&1 && exit 0; sleep 1; done; echo "Docker failed to become ready within 60 seconds" >&2; exit 1'
-  # Start a basic Nginx web server
-  - docker run -d --restart=unless-stopped -p 80:80 --name test-nginx nginx:latest
+  # Create a file for Apache2 to serve
+  - echo "<h1>Hey you made it boi</h1>" > /data/teamspeak/index.html
+  # Start a basic Apache2 web server to serve from the /data/teamspeak directory
+  - docker compose -f /src/docker/docker-compose.yaml up -d
 
 # The commands above will run on first boot of the VM, and will set up Docker and start a test Nginx container.
 # On subsequent boots, the container will be restarted automatically by Docker thanks to the --restart policy.
