@@ -35,8 +35,14 @@ write_files:
             - /data/teamspeak:/var/www/html:ro
     # The "ro" means that the volume bind mount is read-only from the perspective of the container.
 
-# Enable and start the Docker service
+bootcmd:
+  - mkdir -p /data/teamspeak
+
 runcmd:
+  # Race condition between fs_setup and fstab mount, fstab mount is always happening first, so we must mount manually on very first boot
+  # This problem doesn't happen on subsequent boots, only on the very first one
+  - mount /dev/disk/azure/scsi1/lun10 /data/teamspeak
+  # Start Docker
   - systemctl enable docker
   - systemctl start docker
   # Wait for Docker daemon to become ready before running containers (timeout after ~1 minute)
