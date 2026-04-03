@@ -15,17 +15,19 @@ packages:
 
 # Disk setup is documentated here: https://docs.cloud-init.io/en/latest/reference/examples.html#disk-setup
 # There is a section that specifically covers Azure's disk naming convention.
-disk_setup:
-  /dev/disk/azure/scsi1/lun10:
-    table_type: gpt
-    layout: True
-    overwrite: False
+# Overwrite checks do not work when the disk is mounted after the instance comes online.
+# We have already set up the disk - therefore, we comment out disk_setup and fs_setup until they are needed again.
+# disk_setup:
+#   /dev/disk/azure/scsi1/lun10:
+#     table_type: gpt
+#     layout: True
+#     overwrite: False
 
-fs_setup:
-  - device: /dev/disk/azure/scsi1/lun10
-    filesystem: ext4
-    partition: none
-    overwrite: False
+# fs_setup:
+#   - device: /dev/disk/azure/scsi1/lun10
+#     filesystem: ext4
+#     partition: none
+#     overwrite: False
 
 # Writing to /etc/fstab so mounts persist on boot
 # https://docs.cloud-init.io/en/latest/reference/examples.html#adjust-mount-points-mounted
