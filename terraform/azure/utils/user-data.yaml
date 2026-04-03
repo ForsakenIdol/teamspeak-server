@@ -39,9 +39,10 @@ write_files:
             - "9987:9987/udp"   # Voice Port
             - "30033:30033/tcp" # File Transfer
             - "10080:10080/tcp" # Web Query
+          environment:
+            - TSSERVER_LICENCE_ACCEPTED=accept
           volumes:
             - /data/teamspeak:/var/tsserver
-    # The "ro" means that the volume bind mount is read-only from the perspective of the container.
 
 runcmd:
   # Start Docker
@@ -54,8 +55,8 @@ runcmd:
   # Start a basic Apache2 web server to serve from the /data/teamspeak directory
   - docker compose -f /srv/docker/docker-compose.yaml up -d
 
-# The commands above will run on first boot of the VM, and will set up Docker and start a test Apache2 container.
-# On subsequent boots, the container will be managed by Docker and restarted per the Compose file's restart policy.
+# The commands above will run on first boot of the VM, and will set up Docker and start a the Teamspeak server.
+# On subsequent boots, the Teamspeak container will be managed by Docker and restarted per the Compose file's restart policy.
 # When used with Terraform as user data for a VM, this file will be passed to the VM and executed on first boot.
 # If the contents of this file are changed after attachment to a VM, the changes will not be applied to the VM, as cloud-init only runs on first boot.
 # To make the changes reapply, taint the VM resource in Terraform to force it to be recreated, which will trigger cloud-init to run again with the updated user data.
