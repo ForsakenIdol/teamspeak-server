@@ -23,7 +23,7 @@ fs_setup:
 # Writing to /etc/fstab so mounts persist on boot
 # https://docs.cloud-init.io/en/latest/reference/examples.html#adjust-mount-points-mounted
 mounts:
-  - [ "/dev/disk/azure/scsi1/lun10", "/data/teamspeak", "ext4", "defaults,nofail", "0", "2" ]
+  - [ "/dev/disk/azure/scsi1/lun10", "/data/teamspeak", "ext4", "defaults", "0", "2" ]
 
 write_files:
   - path: /srv/docker/docker-compose.yaml
@@ -52,6 +52,8 @@ runcmd:
   - bash -c 'for i in {1..60}; do docker info >/dev/null 2>&1 && exit 0; sleep 1; done; echo "Docker failed to become ready within 60 seconds" >&2; exit 1'
   # Create a file for Apache2 to serve, checking whether the mounted directory already exists and is actually a mount point
   - bash -c 'if ! mountpoint -q /data/teamspeak; then echo "ERROR, /data/teamspeak is not a mountpoint; aborting." >&2; exit 1; fi; echo "The external volume was mounted successfully to the /data/teamspeak directory.";'
+  # Fix mounted directory ownership for Teamspeak by setting mount ownership to the container's "tsserver" user
+  - bash -c 'TS_UID=$(docker run --rm teamspeaksystems/teamspeak6-server id -u tsserver); TS_GID=$(docker run --rm teamspeaksystems/teamspeak6-server id -g tsserver); chown -R ${TS_UID}:${TS_GID} /data/teamspeak'
   # Start a the Teamspeak web server with the mounted directory
   - docker compose -f /srv/docker/docker-compose.yaml up -d
 
