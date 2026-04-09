@@ -15,7 +15,7 @@ terraform {
 }
 
 provider "azurerm" {
-  # "Visual Studio Professional Subscription" in my personal tenant LDW_PERSONAL_TENANT
+  # "Visual Studio Professional Subscription" in my personal tenant
   subscription_id                 = "4768df7b-f6ff-4b8b-9b0a-3c03595c7ef2"
   resource_provider_registrations = "none"
   features {}
